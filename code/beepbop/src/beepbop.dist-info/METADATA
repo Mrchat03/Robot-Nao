@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Briefcase-Version: 0.3.9
+Name: beepbop
+Formal-Name: BeepBop
+App-ID: com.example.beepbop
+Version: 0.0.1
+Home-page: https://example.com/beepbop
+Author: Eric Jacob Nathanael
+Author-email: gmail.com
+Summary: Application pour piloter un Robot Nao
