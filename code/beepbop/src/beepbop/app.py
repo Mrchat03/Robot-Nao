@@ -2,12 +2,13 @@
 Application pour piloter un Robot Nao
 """
 import toga
+import socket
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW
 
 
 class BeepBop(toga.App):
-
+    #UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
     def startup(self):
         #-----------Création des boîtes--------------
         
@@ -26,6 +27,7 @@ class BeepBop(toga.App):
         joystickCote_box = toga.Box(style=Pack(direction=ROW))
         joystickRecul_box = toga.Box(style=Pack(direction=ROW))
         
+
         rgb_box = toga.Box(style=Pack(direction=COLUMN), children=[rgbChoix_box, rgbRouge_box, rgbVert_box, rgbBleu_box])
         btn_box = toga.Box(style=Pack(direction=COLUMN), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
         joystick_box = toga.Box(style=Pack(direction=COLUMN), children=[joystickAvance_box, joystickCote_box, joystickRecul_box])
@@ -53,10 +55,32 @@ class BeepBop(toga.App):
         rgbVert_box.add(lbl_vert)
         rgbBleu_box.add(lbl_bleu)
    
+
+        #Création des labels
+        rouge_label = toga.Label('R')
+        vert_label = toga.Label('G')
+        bleu_label = toga.Label('B')
+
+
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
 
 
+       
+    ### Fonction pour configurer l'UDP et envoyer des messages###   
+def initUDP(ip = "192.168.4.1", port= 4210):
+    serverAddressPort = (ip, port)
+    return(serverAddressPort)
+    
+
+
 def main():
+    #Initiation de UDP
+    serverAddressPort = initUDP()
+    UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+
+    #fin de config et exemple d'envoie de message par UDP
+    msg = "TATA."
+    UDPClientSocket.sendto(msg.encode(), serverAddressPort)
     return BeepBop()
