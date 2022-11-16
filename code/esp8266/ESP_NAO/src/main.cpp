@@ -2,53 +2,7 @@
 #include <WiFiUdp.h>
 #include <ESP8266WiFiMulti.h>
 #include <PubSubClient.h>
-
-// Prototype
-
-void callback(char *topic, byte *payload, unsigned int length);
-void connectToWifi(void);
-void connectToMqtt(void);
-void sendBroadcast(void);
-
-WiFiUDP Udp;
-WiFiClient espClient;
-PubSubClient client(espClient);
-ESP8266WiFiMulti wifi_multi;
-
-unsigned timerUdpBroadcast = 0;
-unsigned timerMQTT = 0;
-
-// WiFi 1
-const char *ssid1 = "tge_sansfil_270"; // Enter your WiFi name
-const char *password = "sherbrooke";   // Enter WiFi password
-
-// WiFi 2
-const char *ssid2 = "tge_sansfil_228";
-
-// MQTT Broker
-const char *mqtt_broker = "10.240.3.178";
-const char *topic = "zbos/dialog/set";
-const char *mqtt_username = "emqx";
-const char *mqtt_password = "public";
-const int mqtt_port = 1883;
-
-uint16_t connectTimeOutPerAP = 5000; // Defines the TimeOut(ms) for each AP to connect
-
-unsigned int localUdpPort = 4210; // local port to listen on
-char incomingPacket[255];         // buffer for incoming packets
-
-void setup()
-{
-  // Set software serial baud to 115200;
-  Serial.begin(115200);
-  // connecting to a WiFi network
-
-  connectToWifi();
-
-  // Print ESP8266 Local IP Address
-  Udp.begin(localUdpPort);
-  Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
-}
+#include "main.h"
 
 void connectToWifi(void)
 {
@@ -73,7 +27,7 @@ void connectToMqtt(void)
   // connecting to a mqtt broker
   client.setServer(mqtt_broker, mqtt_port);
   client.setCallback(callback);
-  if (!client.connected() && (millis() - timerMQTT > 10000) )
+  if (!client.connected() && (millis() - timerMQTT > 10000))
   {
     String client_id = "esp8266-client-";
     client_id += String(WiFi.macAddress());
@@ -96,7 +50,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.print("Message arrived in topic: ");
   Serial.println(topic);
   Serial.print("Message:");
-  for (int i = 0; i < length; i++)
+  for (unsigned int i = 0; i < length; i++)
   {
     Serial.print((char)payload[i]);
   }
@@ -117,22 +71,85 @@ void sendBroadcast(void)
   }
 }
 
+void splitTrame(char *trame, char c)
+{
+  int i = 0;
+  int j = 0;
+  bool split = false;
+  while (trame[i] != '\0')
+  {
+    if (trame[i] == c)
+    {
+      dataMQTT.topic[j] = '\0';
+      dataMQTT.sizeTopic = j;
+      j = 0;
+      split = true;
+    }
+    else
+    {
+      if (split == false)
+      {
+        dataMQTT.topic[j] = trame[i];
+        j++;
+      }
+      else
+      {
+        dataMQTT.payload[j] = trame[i];
+        j++;
+      }
+    }
+    i++;
+  }
+  dataMQTT.payload[j] = '\0';
+  dataMQTT.sizePayload = j;
+}
+
+void setup()
+{
+  // Set software serial baud to 115200;
+  Serial.begin(115200);
+
+  // LED
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  // connecting to a WiFi network
+
+  connectToWifi();
+
+  // Print ESP8266 Local IP Address
+  Udp.begin(localUdpPort);
+  Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
+
+  digitalWrite(LED_BUILTIN, LOW); // turn the LED on (HIGH is the voltage level)
+}
+
 void loop()
 {
+
+  client.loop();
+
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
     // receive incoming UDP packets
-    Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int len = Udp.read(incomingPacket, 255);
+    Serial.printf("Received %d bytes from %s, port %d : ", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+    int len = Udp.read(udpTrame, 512);
+
     if (len > 0)
     {
-      incomingPacket[len] = 0;
+      udpTrame[len] = 0;
+      splitTrame(udpTrame);
+      Serial.println(udpTrame);
+      if (dataMQTT.sizeTopic > 0 && dataMQTT.sizePayload > 0)
+      {
+
+        Serial.printf("Sending to MQTT topic %s, payload %s\n", dataMQTT.topic, dataMQTT.payload);
+        Serial.println();
+        client.publish(dataMQTT.topic, dataMQTT.payload);
+      }
     }
-    Serial.printf("UDP packet contents: %s\n", incomingPacket);
   }
 
   connectToMqtt();
   sendBroadcast();
-
 }
