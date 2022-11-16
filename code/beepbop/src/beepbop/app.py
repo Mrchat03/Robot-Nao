@@ -2,6 +2,7 @@
 Application pour piloter un Robot Nao
 """
 import toga
+import sys
 import socket
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW, CENTER, JUSTIFY
@@ -9,8 +10,10 @@ from toga.style.pack import COLUMN, ROW, CENTER, JUSTIFY
 
 class BeepBop(toga.App):
     #UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    address = ""
+
+
     def startup(self):
-        oreille_icon = "icon/oreille.png"
         
         
         
@@ -76,19 +79,41 @@ def oreille_action(widget):
     print("oreille")
 
        
+     
     ### Fonction pour configurer l'UDP et envoyer des messages###   
 def initUDP(ip = "192.168.4.1", port= 4210):
     serverAddressPort = (ip, port)
     return(serverAddressPort)
-    
+    ###Fonction connecte automatiquement au ESP de Nath
+def configUDPESP():
+    ip = ""
+    if len(sys.argv) == 3:
+    # Get "IP address of Server" and also the "port number" from
+    #argument 1 and argument 2
+        ip = sys.argv[1]
+    recu = True
+    #Initiation de UDP
+    serverAddressPort = initUDP(ip)
+    UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    UDPClientSocket.bind(serverAddressPort)
 
+    while recu:
+        #Attend de recevoir un message
+        data, address = UDPClientSocket.recvfrom(4096)
+        adressMAC = data.decode('utf-8')
+        if (adressMAC == "84:F3:EB:EE:74:6C"):
+        #Confirmation que le message est recu)
+            msg = "MAC recu" 
+            UDPClientSocket.sendto(msg.encode('utf-8'), address)
+            recu = False
+            #print(recu)
+
+    #fin de config et exemple d'envoie de message par UDP       
+    msg = "Configuration terminée."
+    UDPClientSocket.sendto(msg.encode(), address)
 
 def main():
-    #Initiation de UDP
-    serverAddressPort = initUDP()
-    UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
-    #fin de config et exemple d'envoie de message par UDP
-    msg = "TATA."
-    UDPClientSocket.sendto(msg.encode(), serverAddressPort)
+    configUDPESP()
+    
     return BeepBop()
