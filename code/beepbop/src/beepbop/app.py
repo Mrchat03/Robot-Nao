@@ -4,9 +4,9 @@ Application pour piloter un Robot Nao
 import toga
 import sys
 import socket
+from toga.colors import RED, GREEN, BLUE, rgb
 from toga.style import Pack
-from toga.style.pack import COLUMN, ROW, CENTER, JUSTIFY
-
+from toga.style.pack import COLUMN, ROW
 
 class BeepBop(toga.App):
     #UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -34,6 +34,7 @@ class BeepBop(toga.App):
         joystickCote_box = toga.Box(style=Pack(direction=ROW))
         joystickRecul_box = toga.Box(style=Pack(direction=ROW))
         
+        #Les boîtes principales
         rgb_box = toga.Box(style=Pack(direction=COLUMN), children=[rgbChoix_box, rgbRouge_box, rgbVert_box, rgbBleu_box])
         btn_box = toga.Box(style=Pack(direction=COLUMN, padding_left=20), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
         joystick_box = toga.Box(style=Pack(direction=COLUMN), children=[joystickAvance_box, joystickCote_box, joystickRecul_box])
@@ -56,17 +57,18 @@ class BeepBop(toga.App):
         btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50))
         
         #-----Création des sliders-----
-        slider_rouge = toga.Slider()
-        slider_vert = toga.Slider()
-        slider_bleu = toga.Slider()
+        slider_rouge = toga.Slider(range=(0,255))
+        slider_vert = toga.Slider(range=(0,255))
+        slider_bleu = toga.Slider(range=(0,255))
         
         #-----Ajout du textbox-----
         txt_message = toga.TextInput(style=Pack(padding_top=12))
    
         #-----Création des labels------
-        lbl_rouge = toga.Label('R')
-        lbl_vert = toga.Label('G')
-        lbl_bleu = toga.Label('B')
+        lbl_rouge = toga.Label('R', style=Pack(color=RED))
+        lbl_vert = toga.Label('G', style=Pack(color=GREEN))
+        lbl_bleu = toga.Label('B', style=Pack(color=BLUE))
+        lbl_rougeValeur = toga.Label(slider_rouge.value)
         
 
         #-----Ajout des items aux boîtes rgb-----
@@ -74,6 +76,7 @@ class BeepBop(toga.App):
         rgbChoix_box.add(btn_yeux)
         rgbRouge_box.add(lbl_rouge)
         rgbRouge_box.add(slider_rouge)
+        rgbRouge_box.add(lbl_rougeValeur)
         rgbVert_box.add(lbl_vert)
         rgbVert_box.add(slider_vert)
         rgbBleu_box.add(lbl_bleu)
