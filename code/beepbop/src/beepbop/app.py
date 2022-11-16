@@ -37,7 +37,7 @@ class BeepBop(toga.App):
         rgb_box = toga.Box(style=Pack(direction=COLUMN), children=[rgbChoix_box, rgbRouge_box, rgbVert_box, rgbBleu_box])
         btn_box = toga.Box(style=Pack(direction=COLUMN, padding_left=20), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
         joystick_box = toga.Box(style=Pack(direction=COLUMN), children=[joystickAvance_box, joystickCote_box, joystickRecul_box])
-        main_box = toga.Box(style=Pack(direction=ROW, padding=5), children=[rgb_box, btn_box])
+        main_box = toga.Box(style=Pack(direction=ROW, padding=5), children=[rgb_box, btn_box, joystick_box])
         
         
         #-----Création des boutons-----
@@ -50,6 +50,10 @@ class BeepBop(toga.App):
         btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50))
         btn_animation = toga.Button(text="🕺", style=Pack(font_size=25, width=50))
         btn_envoie = toga.Button(text="⏩", style=Pack(font_size=15, width=50))
+        btn_avance = toga.Button(text="🡹", style=Pack(font_size=25, width=50, padding_top=20, padding_left=50))
+        btn_gauche = toga.Button(text="🡸", style=Pack(font_size=25, width=50, padding_right=50))
+        btn_droite = toga.Button(text="🡺", style=Pack(font_size=25, width=50))
+        btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50))
         
         #-----Création des sliders-----
         slider_rouge = toga.Slider()
@@ -75,8 +79,6 @@ class BeepBop(toga.App):
         rgbBleu_box.add(lbl_bleu)
         rgbBleu_box.add(slider_bleu)
         
-
-        
         #Ajout des items aux boîtes btn-----
         btnPos_box.add(btn_debout)
         btnPos_box.add(btn_assis)
@@ -87,16 +89,18 @@ class BeepBop(toga.App):
         btnMsg_box.add(txt_message)
         btnMsg_box.add(btn_envoie)
         
+        #-----Ajout des items aux boîtes joystick-----
+        joystickAvance_box.add(btn_avance)
+        joystickCote_box.add(btn_gauche)
+        joystickCote_box.add(btn_droite)
+        joystickRecul_box.add(btn_recul)
+        
         
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
 
-def oreille_action(widget):
-    print("oreille")
 
-       
-     
     ### Fonction pour configurer l'UDP et envoyer des messages###   
 def initUDP(ip = "192.168.4.1", port= 4210):
     serverAddressPort = (ip, port)
@@ -131,6 +135,6 @@ def configUDPESP():
 
 def main():
 
-    configUDPESP()
+    #configUDPESP()
     
     return BeepBop()
