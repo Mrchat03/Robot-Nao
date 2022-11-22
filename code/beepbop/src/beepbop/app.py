@@ -17,6 +17,8 @@ class BeepBop(toga.App):
         self.UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.address = ("0", 0)
         self.configUDPESP()
+        self.msgDebout = """zbos/motion/animation/run#{"type":"Posture","animationId":"Stand"}"""
+        self.msgStop = """zbox/motion/animaton/stop"""
         
         #-----------Création des boîtes--------------
         
@@ -43,10 +45,10 @@ class BeepBop(toga.App):
         
         
         #-----Création des boutons-----
-        btn_oreille = toga.Button(text = "👀", style=Pack(font_size=25, width=50, padding_right=10),on_press = self.yeux_action)
-        btn_yeux = toga.Button(text="👂", style=Pack(font_size=25, width=50), on_press = self.oreille_action)
-        btn_debout = toga.Button(text="🧍", style=Pack(font_size=25, width=50))
-        btn_assis = toga.Button(text="🧎", style=Pack(font_size=25, width=50))
+        btn_oreille = toga.Button(text = "👀", style=Pack(font_size=25, width=50, padding_right=10),on_press=self.yeux_action)
+        btn_yeux = toga.Button(text="👂", style=Pack(font_size=25, width=50), on_press=self.oreille_action)
+        btn_debout = toga.Button(text="🧍", style=Pack(font_size=25, width=50), on_press=self.debout_action)
+        btn_assis = toga.Button(text="🧎", style=Pack(font_size=25, width=50), on_press=self.assis_action)
         btn_tourneGauche = toga.Button(text="↶", style=Pack(font_size=25, width=50))
         btn_tourneDroite = toga.Button(text="↷", style=Pack(font_size=25, width=50))
         btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50))
@@ -163,7 +165,16 @@ class BeepBop(toga.App):
         msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1 }"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("yeux  //  ", msg)  
-
+        
+    def debout_action(self, widget):
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+    
+    def assis_action(self, widget):
+        msg = """zbos/motion/animation/run#{"type":"Posture","animationId":"Crouch"}"""
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
 
     def configUDPESP(self):
         ip = ""
