@@ -14,9 +14,6 @@ class BeepBop(toga.App):
 
 
     def startup(self):
-        
-        
-        
         #-----------Création des boîtes--------------
         
         #Les sous-boîtes
@@ -57,9 +54,9 @@ class BeepBop(toga.App):
         btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50))
         
         #-----Création des sliders-----
-        slider_rouge = toga.Slider(range=(0,255))
-        slider_vert = toga.Slider(range=(0,255))
-        slider_bleu = toga.Slider(range=(0,255))
+        self.slider_rouge = toga.Slider(range=(0,255), on_change=self.majRouge)
+        self.slider_vert = toga.Slider(range=(0,255), on_change=self.majVert)
+        self.slider_bleu = toga.Slider(range=(0,255), on_change=self.majBleu)
         
         #-----Ajout du textbox-----
         txt_message = toga.TextInput(style=Pack(padding_top=12))
@@ -68,19 +65,22 @@ class BeepBop(toga.App):
         lbl_rouge = toga.Label('R', style=Pack(color=RED))
         lbl_vert = toga.Label('G', style=Pack(color=GREEN))
         lbl_bleu = toga.Label('B', style=Pack(color=BLUE))
-        lbl_rougeValeur = toga.Label(slider_rouge.value)
-        
+        self.lbl_rougeValeur = toga.Label(int(self.slider_rouge.value))
+        self.lbl_vertValeur = toga.Label(int(self.slider_vert.value))
+        self.lbl_bleuValeur = toga.Label(int(self.slider_bleu.value))
 
         #-----Ajout des items aux boîtes rgb-----
         rgbChoix_box.add(btn_oreille)
         rgbChoix_box.add(btn_yeux)
         rgbRouge_box.add(lbl_rouge)
-        rgbRouge_box.add(slider_rouge)
-        rgbRouge_box.add(lbl_rougeValeur)
+        rgbRouge_box.add(self.slider_rouge)
+        rgbRouge_box.add(self.lbl_rougeValeur)
         rgbVert_box.add(lbl_vert)
-        rgbVert_box.add(slider_vert)
+        rgbVert_box.add(self.slider_vert)
+        rgbVert_box.add(self.lbl_vertValeur)
         rgbBleu_box.add(lbl_bleu)
-        rgbBleu_box.add(slider_bleu)
+        rgbBleu_box.add(self.slider_bleu)
+        rgbBleu_box.add(self.lbl_bleuValeur)
         
         #Ajout des items aux boîtes btn-----
         btnPos_box.add(btn_debout)
@@ -91,7 +91,7 @@ class BeepBop(toga.App):
         btnAnim_box.add(btn_animation)
         btnMsg_box.add(txt_message)
         btnMsg_box.add(btn_envoie)
-        
+    
         #-----Ajout des items aux boîtes joystick-----
         joystickAvance_box.add(btn_avance)
         joystickCote_box.add(btn_gauche)
@@ -102,7 +102,13 @@ class BeepBop(toga.App):
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
-
+    
+    def majRouge(self, widget):
+        self.lbl_rougeValeur.text=int(self.slider_rouge.value)
+    def majVert(self, widget):
+        self.lbl_vertValeur.text=int(self.slider_vert.value)
+    def majBleu(self, widget):
+        self.lbl_bleuValeur.text=int(self.slider_bleu.value)
 
     ### Fonction pour configurer l'UDP et envoyer des messages###   
 def initUDP(ip = "192.168.4.1", port= 4210):
