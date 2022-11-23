@@ -3,6 +3,7 @@ Application pour piloter un Robot Nao
 """
 import toga
 import sys
+import time
 import socket
 from toga.colors import RED, GREEN, BLUE, rgb
 from toga.style import Pack
@@ -53,11 +54,11 @@ class BeepBop(toga.App):
         btn_tourneDroite = toga.Button(text="↷", style=Pack(font_size=25, width=50), on_press=self.tourneDroite_action)
         btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50), on_press=self.tourne180_action)
         btn_animation = toga.Button(text="🕺", style=Pack(font_size=25, width=50), on_press=self.animation_action)
-        btn_envoie = toga.Button(text="⏩", style=Pack(font_size=15, width=50))
-        btn_avance = toga.Button(text="🡹", style=Pack(font_size=25, width=50, padding_top=20, padding_left=50))
-        btn_gauche = toga.Button(text="🡸", style=Pack(font_size=25, width=50, padding_right=50))
-        btn_droite = toga.Button(text="🡺", style=Pack(font_size=25, width=50))
-        btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50))
+        btn_envoie = toga.Button(text="⏩", style=Pack(font_size=15, width=50), on_press=self.parle_action)
+        btn_avance = toga.Button(text="🡹", style=Pack(font_size=25, width=50, padding_top=20, padding_left=50), on_press=self.avance_action)
+        btn_gauche = toga.Button(text="🡸", style=Pack(font_size=25, width=50, padding_right=50), on_press=self.gauche_action)
+        btn_droite = toga.Button(text="🡺", style=Pack(font_size=25, width=50), on_press=self.droite_action)
+        btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50), on_press=self.recul_action)
         
         #-----Création des sliders-----
         self.slider_rouge = toga.Slider(range=(0,255), on_change=self.majRouge)
@@ -65,7 +66,7 @@ class BeepBop(toga.App):
         self.slider_bleu = toga.Slider(range=(0,255), on_change=self.majBleu)
         
         #-----Ajout du textbox-----
-        txt_message = toga.TextInput(style=Pack(padding_top=12))
+        self.txt_message = toga.TextInput(style=Pack(padding_top=12))
    
         #-----Création des labels------
         lbl_rouge = toga.Label('R', style=Pack(color=RED))
@@ -95,7 +96,7 @@ class BeepBop(toga.App):
         btnTourne_box.add(btn_tourneDroite)
         btnAnim_box.add(btn_tourne180)
         btnAnim_box.add(btn_animation)
-        btnMsg_box.add(txt_message)
+        btnMsg_box.add(self.txt_message)
         btnMsg_box.add(btn_envoie)
     
         #-----Ajout des items aux boîtes joystick-----
@@ -167,44 +168,58 @@ class BeepBop(toga.App):
         print("yeux  //  ", msg)  
         
     def debout_action(self, widget):
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
         self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
         print("debout  //  ", self.msgDebout)
     
     def assis_action(self, widget):
-        msg = """zbos/motion/animation/run#{"type":"Posture","animationId":"Crouch"}"""
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        msg = self.msgDebout + "!" + """zbos/motion/animation/run#{"type":"Posture","animationId":"Crouch"}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("assis  //  ", msg)
         
     def tourneGauche_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": -90}"""
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneGauche  //  ", msg)
         
     def tourneDroite_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 90}"""
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneDroite  //  ", msg)
         
     def tourne180_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourne180  //  ", msg)
         
     def animation_action(self, widget):
-        msg = """zbos/motion/animation/run#{"type":"Posture","animationId":"Tai Chi Chuan"}"""
-        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        msg = self.msgDebout + "!" + """zbos/motion/animation/run#{"type":"Posture","animationId":"taichisit/taichisit"}"""
         print("animation  //  ", msg)
     
+    def avance_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("avance  //  ", msg)
+        
+    def droite_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("droite  //  ", msg)
+    
+    def gauche_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("gauche  //  ", msg)
+        
+    def recul_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("recul  //  ", msg)
+    
+    def parle_action(self, widget):
+        #Je vais faire un pas", "language": "fr-FR", "volume": 50}
+        msg = """zbos/dialog/set#{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50} """
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("parle  //  ", msg)
 
     def configUDPESP(self):
         ip = ""
