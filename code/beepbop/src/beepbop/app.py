@@ -49,10 +49,10 @@ class BeepBop(toga.App):
         btn_yeux = toga.Button(text="👂", style=Pack(font_size=25, width=50), on_press=self.oreille_action)
         btn_debout = toga.Button(text="🧍", style=Pack(font_size=25, width=50), on_press=self.debout_action)
         btn_assis = toga.Button(text="🧎", style=Pack(font_size=25, width=50), on_press=self.assis_action)
-        btn_tourneGauche = toga.Button(text="↶", style=Pack(font_size=25, width=50))
-        btn_tourneDroite = toga.Button(text="↷", style=Pack(font_size=25, width=50))
-        btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50))
-        btn_animation = toga.Button(text="🕺", style=Pack(font_size=25, width=50))
+        btn_tourneGauche = toga.Button(text="↶", style=Pack(font_size=25, width=50), on_press=self.tourneGauche_action)
+        btn_tourneDroite = toga.Button(text="↷", style=Pack(font_size=25, width=50), on_press=self.tourneDroite_action)
+        btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50), on_press=self.tourne180_action)
+        btn_animation = toga.Button(text="🕺", style=Pack(font_size=25, width=50), on_press=self.animation_action)
         btn_envoie = toga.Button(text="⏩", style=Pack(font_size=15, width=50))
         btn_avance = toga.Button(text="🡹", style=Pack(font_size=25, width=50, padding_top=20, padding_left=50))
         btn_gauche = toga.Button(text="🡸", style=Pack(font_size=25, width=50, padding_right=50))
@@ -169,12 +169,42 @@ class BeepBop(toga.App):
     def debout_action(self, widget):
         self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
         self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        print("debout  //  ", self.msgDebout)
     
     def assis_action(self, widget):
         msg = """zbos/motion/animation/run#{"type":"Posture","animationId":"Crouch"}"""
         self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
         self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("assis  //  ", msg)
+        
+    def tourneGauche_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": -90}"""
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("tourneGauche  //  ", msg)
+        
+    def tourneDroite_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 90}"""
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("tourneDroite  //  ", msg)
+        
+    def tourne180_action(self, widget):
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("tourne180  //  ", msg)
+        
+    def animation_action(self, widget):
+        msg = """zbos/motion/animation/run#{"type":"Posture","animationId":"Tai Chi Chuan"}"""
+        self.UDPClientSocket.sendto(self.msgStop.encode('utf-8'), self.address)
+        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
+        print("animation  //  ", msg)
+    
 
     def configUDPESP(self):
         ip = ""
