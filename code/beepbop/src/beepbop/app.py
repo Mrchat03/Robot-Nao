@@ -139,7 +139,7 @@ class BeepBop(toga.App):
         bleu = int(self.slider_bleu.value)
         rgb = rgb + bleu
         hex_rgb = format(rgb, 'x')
-        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1 }"""
+        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("oreille  //  ", msg)
 
@@ -163,7 +163,7 @@ class BeepBop(toga.App):
         bleu = int(self.slider_bleu.value)
         rgb = rgb + bleu
         hex_rgb = format(rgb, 'x')
-        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1 }"""
+        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("yeux  //  ", msg)  
         
@@ -199,25 +199,41 @@ class BeepBop(toga.App):
         msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("avance  //  ", msg)
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        time.sleep(5)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("stop   //  ", msg)
         
     def droite_action(self, widget):
         msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("droite  //  ", msg)
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        time.sleep(5)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("stop   //", msg)
     
     def gauche_action(self, widget):
         msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("gauche  //  ", msg)
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        time.sleep(5)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("stop   //", msg)
         
     def recul_action(self, widget):
         msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("recul  //  ", msg)
+        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        time.sleep(5)
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("stop   //", msg)
     
     def parle_action(self, widget):
         #Je vais faire un pas", "language": "fr-FR", "volume": 50}
-        msg = """zbos/dialog/set#{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50} """
+        msg = """zbos/dialog/set#{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("parle  //  ", msg)
 
