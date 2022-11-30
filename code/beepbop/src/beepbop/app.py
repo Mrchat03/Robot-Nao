@@ -4,6 +4,7 @@ Application pour piloter un Robot Nao
 import toga
 import sys
 import time
+import json
 import socket
 from toga.colors import RED, GREEN, BLUE, rgb
 from toga.style import Pack
@@ -18,8 +19,6 @@ class BeepBop(toga.App):
         self.UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.address = ("0", 0)
         self.configUDPESP()
-        self.msgDebout = """zbos/motion/animation/run#{"type":"Posture","animationId":"Stand"}"""
-        self.msgStop = """zbox/motion/animaton/stop"""
         
         #-----------Création des boîtes--------------
         
@@ -128,7 +127,7 @@ class BeepBop(toga.App):
         #"breathDuration": <valeur int>, (exemple: 1500)
         #"duration": <valeur int> (exemple: 1500)
         #}
-        msg = """zbos/leds/chestlight/set#{"part": "HEAD", "color": "#"""
+        msg = {"topic":"""zbos/leds/chestlight/set""", "payload": ""}
         rgb = 0
         rouge = int(self.slider_rouge.value)
         rouge = rouge * 65536
@@ -139,9 +138,10 @@ class BeepBop(toga.App):
         bleu = int(self.slider_bleu.value)
         rgb = rgb + bleu
         hex_rgb = format(rgb, 'x')
-        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("oreille  //  ", msg)
+        msg["payload"] = """{"part": "HEAD", "color": "# """ + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("oreille  //  ", msg_JSON)
 
     def yeux_action(self, widget):
         #zbos/leds/chestlight/set#
@@ -152,7 +152,7 @@ class BeepBop(toga.App):
         #"breathDuration": <valeur int>, (exemple: 1500)
         #"duration": <valeur int> (exemple: 1500)
         #}
-        msg = """zbos/leds/chestlight/set#{"part": "EYES", "color": "#"""
+        msg = {"topic":"""zbos/leds/chestlight/set""", "payload": "" }
         rgb = 0
         rouge = int(self.slider_rouge.value)
         rouge = rouge * 65536
@@ -163,79 +163,97 @@ class BeepBop(toga.App):
         bleu = int(self.slider_bleu.value)
         rgb = rgb + bleu
         hex_rgb = format(rgb, 'x')
-        msg = msg + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("yeux  //  ", msg)  
+        msg["payload"] = """{part": "EYES", "color": "# """ + hex_rgb + """", "breathDuration": 1500, "duration": -1}"""
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("yeux  //  ", msg_JSON)  
         
     def debout_action(self, widget):
-        self.UDPClientSocket.sendto(self.msgDebout.encode('utf-8'), self.address)
-        print("debout  //  ", self.msgDebout)
+        msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"Stand"}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("debout  //  ", msg_JSON)
     
     def assis_action(self, widget):
-        msg = self.msgDebout + "!" + """zbos/motion/animation/run#{"type":"Posture","animationId":"Crouch"}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("assis  //  ", msg)
+        msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"Crouch"}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("assis  //  ", msg_JSON)
         
     def tourneGauche_action(self, widget):
-        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("tourneGauche  //  ", msg)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("tourneGauche  //  ", msg_JSON)
         
     def tourneDroite_action(self, widget):
-        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("tourneDroite  //  ", msg)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("tourneDroite  //  ", msg_JSON)
         
     def tourne180_action(self, widget):
-        msg = self.msgDebout + "!" + """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("tourne180  //  ", msg)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("tourne180  //  ", msg_JSON)
         
     def animation_action(self, widget):
-        msg = self.msgDebout + "!" + """zbos/motion/animation/run#{"type":"Posture","animationId":"taichisit/taichisit"}"""
-        print("animation  //  ", msg)
+        msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"taichisit/taichisit"}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("animation  //  ", msg_JSON)
     
     def avance_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("avance  //  ", msg)
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("avance  //  ", msg_JSON)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 0,"distance": 0,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
         time.sleep(5)
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("stop   //  ", msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("stop   //  ", msg_JSON)
         
     def droite_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("droite  //  ", msg)
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("droite  //  ", msg_JSON)
+        msg = {"topic":"""zbos/motion/control/movement""","payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
         time.sleep(5)
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("stop   //", msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("stop   //", msg_JSON)
     
     def gauche_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("gauche  //  ", msg)
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("gauche  //  ", msg_JSON)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 0,"distance": 0,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
         time.sleep(5)
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("stop   //", msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("stop   //", msg_JSON)
         
     def recul_action(self, widget):
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 50,"distance": 0.1,"relative_rotation": 0}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("recul  //  ", msg)
-        msg = """zbos/motion/control/movement#{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 0,"distance": 0,"relative_rotation": 0}"""
+        msg = {"""zbos/motion/control/movement""": """{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("recul  //  ", msg_JSON)
+        msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 0,"distance": 0,"relative_rotation": 0}"""}
+        msg_JSON = json.dumps(msg)
         time.sleep(5)
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("stop   //", msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("stop   //", msg_JSON)
     
     def parle_action(self, widget):
         #Je vais faire un pas", "language": "fr-FR", "volume": 50}
-        msg = """zbos/dialog/set#{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("parle  //  ", msg)
+        msg = {"topic":"""zbos/dialog/set""", "payload": """{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50}"""}
+        msg_JSON = json.dumps(msg)
+        self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
+        print("parle  //  ", msg_JSON)
 
     def configUDPESP(self):
         ip = ""
