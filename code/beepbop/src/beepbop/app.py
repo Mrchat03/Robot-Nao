@@ -1,5 +1,11 @@
 """
-Application pour piloter un Robot Nao
+@file   app.py
+@author Nathanaël Amaridon, Jacob Turcotte, Eric Gingras
+@date   6 decembre 2022
+@brief  Application pour piloter un Robot Nao
+@version 1.0
+
+Environnement: Visual Studio Code
 """
 import toga
 import sys
@@ -118,6 +124,7 @@ class BeepBop(toga.App):
     def majBleu(self, widget):
         self.lbl_bleuValeur.text=int(self.slider_bleu.value)
 
+    #Pour changer la couleur des yeux du robot
     def oreille_action(self, widget):
         #zbos/leds/chestlight/set#
         #{
@@ -142,7 +149,8 @@ class BeepBop(toga.App):
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("oreille  //  ", msg_JSON)
-
+        
+    #Pour changer la couleur des yeux du robot
     def yeux_action(self, widget):
         #zbos/leds/chestlight/set#
         #{
@@ -168,42 +176,49 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("yeux  //  ", msg_JSON)  
         
+    #Place le robot en position debout
     def debout_action(self, widget):
         msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"Stand"}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("debout  //  ", msg_JSON)
     
+    #Place le robot en position assis
     def assis_action(self, widget):
         msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"Crouch"}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("assis  //  ", msg_JSON)
-        
+
+    #Tourne le robot vers la gauche de 15 degrés
     def tourneGauche_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("tourneGauche  //  ", msg_JSON)
-        
+      
+    #Tourne le robot vers la droite de 15 degrés  
     def tourneDroite_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("tourneDroite  //  ", msg_JSON)
         
+    #Tourne le robot 180 degrés
     def tourne180_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("tourne180  //  ", msg_JSON)
         
+    #Fonction pour faire danser le robot
     def animation_action(self, widget):
         msg = {"topic":"""zbos/motion/animation/run""", "payload": """{"type":"Posture","animationId":"taichisit/taichisit"}"""}
         msg_JSON = json.dumps(msg)
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("animation  //  ", msg_JSON)
     
+    #Avance le robot de quelques pas
     def avance_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
@@ -215,6 +230,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("stop   //  ", msg_JSON)
         
+    #Le robot marche vers la droite pour quelques pas
     def droite_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
@@ -226,6 +242,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("stop   //", msg_JSON)
     
+    #Le robot marche vers la gauche pour quelques pas
     def gauche_action(self, widget):
         msg = {"topic":"""zbos/motion/control/movement""", "payload": """{"yaw": 0,"pitch": 0,"angle": {"degree": 180},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
@@ -237,6 +254,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("stop   //", msg_JSON)
         
+    #Le robot recule de quelques pas
     def recul_action(self, widget):
         msg = {"""zbos/motion/control/movement""": """{"yaw": 0,"pitch": 0,"angle": {"degree": 270},"force": 50,"distance": 0.1,"relative_rotation": 0}"""}
         msg_JSON = json.dumps(msg)
@@ -248,6 +266,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg_JSON.encode('utf-8'), self.address)
         print("stop   //", msg_JSON)
     
+    #Le robot dit ce qui a été saisi dans le textbox
     def parle_action(self, widget):
         #Je vais faire un pas", "language": "fr-FR", "volume": 50}
         msg = {"topic":"""zbos/dialog/set""", "payload": """{"message": """ + '"'+ self.txt_message.value + """ ", "language": "fr-FR", "volume": 50}"""}
