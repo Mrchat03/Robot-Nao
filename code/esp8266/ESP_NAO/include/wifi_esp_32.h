@@ -5,5 +5,5 @@
 
 
 void connectToWifi(void);
-
+void setNewWifi(const char *ssid, const char *password);
 #endif // !WIFI_ESP_32_H

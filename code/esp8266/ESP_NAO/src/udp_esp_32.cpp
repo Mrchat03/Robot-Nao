@@ -1,6 +1,6 @@
 /// @file udp_esp32.cpp
 /// @brief Communication UDP
-/// @author Nathanaël Amaridon 
+/// @author Nathanaël Amaridon
 /// @date 2022-12-07
 /// @version 1.0.0
 /// @details
@@ -74,8 +74,9 @@ bool UdpEsp32::readTrame(void)
             Serial.printf("Le message reçu est : %s\n", udpTrame);
 
             // Si la trame UDP n'est pas un objet JSON
-            if (udpTrame[0] != '{') return false;
-            
+            if (udpTrame[0] != '{')
+                return false;
+
             err = deserializeJson(doc, udpTrame);
             if (err == DeserializationError::Ok)
             {
@@ -101,12 +102,18 @@ void UdpEsp32::sendBroadcast(void)
     // Tout les 10 secondes, on envoie un broadcast UDP
     if (millis() - timerUdpBroadcast > TIMER_UDP)
     {
-        // Send a broadcast message to the local network
+        // Envoi en broadcast UDP
         beginPacketMulticast(broadcastIP(), localUdpPort, localIP());
         write(broadcastTrame);
         endPacket();
         timerUdpBroadcast = millis();
     }
+}
+
+void UdpEsp32::restartUDP(void)
+{
+    WiFiUDP::stop();
+    UdpEsp32::beginUdp();
 }
 
 /// @brief Retourne le SSID de l'appareil

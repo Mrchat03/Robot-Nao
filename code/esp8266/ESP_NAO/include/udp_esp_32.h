@@ -1,3 +1,10 @@
+/// @file udp_esp32.h
+/// @brief Communication UDP
+/// @author Nathanaël Amaridon
+/// @date 2022-12-07
+/// @version 1.0.0
+/// @details
+
 #pragma once
 
 #ifndef UDP_ESP_32_H
@@ -13,7 +20,6 @@ const unsigned long TIMER_UDP = 5000UL;
 /// @brief Classe pour la communication UDP
 class UdpEsp32 : public WiFiUDP
 {
-
 private:
     const unsigned int localUdpPort = 4210; // local port to listen on
     const char *broadcastTrame = "allo le monde !";
@@ -28,6 +34,7 @@ public:
     String macAddress(void);
     IPAddress localIP(void);
     bool readTrame(void);
+    void restartUDP(void);
     String SSID(void);
 
     void sendBroadcast(void);
