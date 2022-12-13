@@ -17,16 +17,13 @@ from toga.style.pack import COLUMN, ROW
 
 class BeepBop(toga.App):
     address = ""
+    UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
     def startup(self):
 
         #-----------Création des boîtes--------------
         
         #Les sous-boîtes
-        rgbChoix_box = toga.Box(style=Pack(direction=ROW))
-        rgbRouge_box = toga.Box(style=Pack(direction=ROW, padding_top = 10))
-        rgbVert_box = toga.Box(style=Pack(direction=ROW))
-        rgbBleu_box = toga.Box(style=Pack(direction=ROW))
         
         btnPos_box = toga.Box(style=Pack(direction=ROW))
         btnTourne_box = toga.Box(style=Pack(direction=ROW))
@@ -40,56 +37,29 @@ class BeepBop(toga.App):
         connexion_box = toga.Box(style=Pack(direction=ROW))
         
         #Les boîtes principales
-        rgb_box = toga.Box(style=Pack(direction=COLUMN), children=[rgbChoix_box, rgbRouge_box, rgbVert_box, rgbBleu_box])
-        btn_box = toga.Box(style=Pack(direction=COLUMN, padding_left=20), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
+        btn_box = toga.Box(style=Pack(direction=COLUMN, padding_right=20, padding_left=50), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
         joystick_box = toga.Box(style=Pack(direction=COLUMN), children=[joystickAvance_box, joystickCote_box, joystickRecul_box])
-        main_box = toga.Box(style=Pack(direction=ROW, padding=5), children=[rgb_box, btn_box, joystick_box, connexion_box])
+        main_box = toga.Box(style=Pack(direction=ROW, padding=5), children=[btn_box, joystick_box, connexion_box])
         
         
         #-----Création des boutons-----
-        btn_oreille = toga.Button(text = "👀", style=Pack(font_size=25, width=50, padding_right=10),on_press=self.yeux_action)
-        btn_yeux = toga.Button(text="👂", style=Pack(font_size=25, width=50), on_press=self.oreille_action)
         btn_debout = toga.Button(text="🧍", style=Pack(font_size=25, width=50), on_press=self.debout_action)
         btn_assis = toga.Button(text="🧎", style=Pack(font_size=25, width=50), on_press=self.assis_action)
         btn_tourneGauche = toga.Button(text="↶", style=Pack(font_size=25, width=50), on_press=self.tourneGauche_action)
         btn_tourneDroite = toga.Button(text="↷", style=Pack(font_size=25, width=50), on_press=self.tourneDroite_action)
         btn_tourne180 = toga.Button(text="⟲", style=Pack(font_size=25, width=50), on_press=self.tourne180_action)
         btn_animation = toga.Button(text="🕺", style=Pack(font_size=25, width=50), on_press=self.animation_action)
-        btn_envoie = toga.Button(text="⏩", style=Pack(font_size=15, width=50), on_press=self.parle_action)
+        btn_envoie = toga.Button(text="💬", style=Pack(font_size=15, width=50), on_press=self.parle_action)
         btn_avance = toga.Button(text="🡹", style=Pack(font_size=25, width=50, padding_top=20, padding_left=50), on_press=self.avance_action)
         btn_gauche = toga.Button(text="🡸", style=Pack(font_size=25, width=50, padding_right=50), on_press=self.gauche_action)
         btn_droite = toga.Button(text="🡺", style=Pack(font_size=25, width=50), on_press=self.droite_action)
         btn_recul = toga.Button(text="🡻", style=Pack(font_size=25, width=50, padding_left = 50), on_press=self.recul_action)
         btn_connexion = toga.Button(text="📶", style=Pack(font_size=25, width=50), on_press=self.connect_action)
+        btn_stop = toga.Button(text="❌", style=Pack(font_size=25, width=50), on_press=self.animation_stop)
         
-        #-----Création des sliders-----
-        self.slider_rouge = toga.Slider(range=(0,255), on_change=self.majRouge)
-        self.slider_vert = toga.Slider(range=(0,255), on_change=self.majVert)
-        self.slider_bleu = toga.Slider(range=(0,255), on_change=self.majBleu)
         
-        #-----Ajout du textbox-----
+        #-----Création du textbox-----
         self.txt_message = toga.TextInput(style=Pack(padding_top=12))
-   
-        #-----Création des labels------
-        lbl_rouge = toga.Label('R', style=Pack(color=RED))
-        lbl_vert = toga.Label('G', style=Pack(color=GREEN))
-        lbl_bleu = toga.Label('B', style=Pack(color=BLUE))
-        self.lbl_rougeValeur = toga.Label(int(self.slider_rouge.value))
-        self.lbl_vertValeur = toga.Label(int(self.slider_vert.value))
-        self.lbl_bleuValeur = toga.Label(int(self.slider_bleu.value))
-
-        #-----Ajout des items aux boîtes rgb-----
-        rgbChoix_box.add(btn_oreille)
-        rgbChoix_box.add(btn_yeux)
-        rgbRouge_box.add(lbl_rouge)
-        rgbRouge_box.add(self.slider_rouge)
-        rgbRouge_box.add(self.lbl_rougeValeur)
-        rgbVert_box.add(lbl_vert)
-        rgbVert_box.add(self.slider_vert)
-        rgbVert_box.add(self.lbl_vertValeur)
-        rgbBleu_box.add(lbl_bleu)
-        rgbBleu_box.add(self.slider_bleu)
-        rgbBleu_box.add(self.lbl_bleuValeur)
         
         #Ajout des items aux boîtes btn-----
         btnPos_box.add(btn_debout)
@@ -98,6 +68,7 @@ class BeepBop(toga.App):
         btnTourne_box.add(btn_tourneDroite)
         btnAnim_box.add(btn_tourne180)
         btnAnim_box.add(btn_animation)
+        btnAnim_box.add(btn_stop)
         btnMsg_box.add(self.txt_message)
         btnMsg_box.add(btn_envoie)
     
@@ -110,18 +81,11 @@ class BeepBop(toga.App):
         connexion_box.add(btn_connexion)
         
         
+        
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
     
-    def majRouge(self, widget):
-        self.lbl_rougeValeur.text=int(self.slider_rouge.value)
-        
-    def majVert(self, widget):
-        self.lbl_vertValeur.text=int(self.slider_vert.value)
-        
-    def majBleu(self, widget):
-        self.lbl_bleuValeur.text=int(self.slider_bleu.value)
         
     def connect_action(self, widget):
         self.UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -130,53 +94,6 @@ class BeepBop(toga.App):
         
         widget.enabled = False
 
-    #Pour changer la couleur des yeux du robot
-    def oreille_action(self, widget):
-        #zbos/leds/chestlight/set#
-        #{
-        #"part": <partie du corps>, ("CHEST" * "MOUTH" * "EYES" * "HEAD" * "SPEECH")
-        #"color": <valeur hexa de couleur rgb>, (exemple: "#ff0000")
-        #"breath": <valeur bool>, (true, false)
-        #"breathDuration": <valeur int>, (exemple: 1500)
-        #"duration": <valeur int> (exemple: 1500)
-        #}
-        rgb = 0
-        rouge = int(self.slider_rouge.value)
-        rouge = rouge * 65536
-        rgb = rgb + rouge
-        vert = int(self.slider_vert.value)
-        vert = vert * 256
-        rgb = rgb + vert
-        bleu = int(self.slider_bleu.value)
-        rgb = rgb + bleu
-        hex_rgb = format(rgb, 'x')
-        msg = """{"led":{"topic":"zbos/leds/chestlight/set","payload":{"part": "HEAD", "color": "#""" + hex_rgb + """", "breathDuration": 1500, "duration": -1}}}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("oreille  //  ", msg)
-        
-    #Pour changer la couleur des yeux du robot
-    def yeux_action(self, widget):
-        #zbos/leds/chestlight/set#
-        #{
-        #"part": <partie du corps>, ("CHEST" * "MOUTH" * "EYES" * "HEAD" * "SPEECH")
-        #"color": <valeur hexa de couleur rgb>, (exemple: "#ff0000")
-        #"breath": <valeur bool>, (true, false)
-        #"breathDuration": <valeur int>, (exemple: 1500)
-        #"duration": <valeur int> (exemple: 1500)
-        #}
-        rgb = 0
-        rouge = int(self.slider_rouge.value)
-        rouge = rouge * 65536
-        rgb = rgb + rouge
-        vert = int(self.slider_vert.value)
-        vert = vert * 256
-        rgb = rgb + vert
-        bleu = int(self.slider_bleu.value)
-        rgb = rgb + bleu
-        hex_rgb = format(rgb, 'x')
-        msg = """{"led":{"topic":"zbos/leds/chestlight/set","payload":{"part": "EYES", "color": "#""" + hex_rgb + """", "breathDuration": 1500, "duration": -1}}}"""
-        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
-        print("yeux  //  ", msg)  
         
     #Place le robot en position debout
     def debout_action(self, widget):
@@ -192,7 +109,7 @@ class BeepBop(toga.App):
 
     #Tourne le robot vers la gauche de 15 degrés
     def tourneGauche_action(self, widget):
-        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"yaw": 0,"pitch": 0,"angle":{"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": -45}}}"""
+        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.5,"degree":15},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneGauche  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
@@ -202,29 +119,34 @@ class BeepBop(toga.App):
       
     #Tourne le robot vers la droite de 15 degrés  
     def tourneDroite_action(self, widget):
-        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 90},"force": 50,"distance": 0.1,"relative_rotation": 45}}}"""
+        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.6939980604270402,"degree":39.763159852734475},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneDroite  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
-        time.sleep(5)
+        time.sleep(3)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
         
     #Tourne le robot 180 degrés
     def tourne180_action(self, widget):
-        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}}}"""
+        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.6939980604270402,"degree":39.763159852734475},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourne180  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
-        time.sleep(5)
+        time.sleep(8)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
         
     #Fonction pour faire danser le robot
     def animation_action(self, widget):
-        msg = """{"dance":{"topic":"zbos/motion/animation/run","payload":{"type":"Posture","animationId":"taichisit/taichisit"}}}"""
+        msg = """{"dance":{"topic":"zbos/motion/dance/start", "payload":"chickendance/chickendance"}}""" 
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("animation  //  ", msg)
+        
+    def animation_stop(self, widget):
+        msg = """{"dance":{"topic":"zbos/motion/dance/stop"}}"""
+        self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        print("stop  //  ", msg)
     
     #Avance le robot de quelques pas
     def avance_action(self, widget):
@@ -269,10 +191,15 @@ class BeepBop(toga.App):
     #Le robot dit ce qui a été saisi dans le textbox
     def parle_action(self, widget):
         #Je vais faire un pas", "language": "fr-FR", "volume": 50}
-        if "ip set " in self.txt_message.value:
+        if "mqtt set " in self.txt_message.value:
             index = self.txt_message.value.find('set') + 4
-            ip = self.txt_message.value[index:len(self.txt_message.value)]
-            msg = """{"commande":{"ip":{"set":""" +'"' + ip + """"}}}"""
+            mqtt = self.txt_message.value[index:len(self.txt_message.value)]
+            msg = """{"commande":{"mqtt":{"set":""" +'"' + mqtt + """"}}}"""
+        elif "wifi set" in self.txt_message.value:
+            index = self.txt_message.value.find('set') + 4
+            ssidPwd = self.txt_message.value[index:len(self.txt_message.value)]
+            infoWifi = ssidPwd.split(' ')
+            msg = """{"commande":{"wifi":{"set":{"ssid":""" + '"' + infoWifi[0] + """", "pwd":""" + '"' + infoWifi[1] + """"}}}}"""
         else:
             msg = """{"dialog":{"topic":"zbos/dialog/set","payload":{"message":""" + '"' + self.txt_message.value + """", "language": "fr-FR", "volume": 50}}}"""
         
