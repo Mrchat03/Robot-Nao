@@ -1,4 +1,12 @@
- #pragma once
+/// @file mqtt_esp32.h
+/// @brief Gestion des requêtes MQTT
+/// @author Nathanaël Amaridon 
+/// @date 2022-12-07
+/// @version 1.0.0
+/// @details
+
+
+#pragma once
 
 #ifndef MQTT_ESP_32_H
 #define MQTT_ESP_32_H
