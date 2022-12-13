@@ -109,11 +109,11 @@ class BeepBop(toga.App):
 
     #Tourne le robot vers la gauche de 15 degrés
     def tourneGauche_action(self, widget):
-        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.5,"degree":15},"force":100}}}"""
+        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":2.2448158576504826,"degree":128.61847442741285},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneGauche  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
-        time.sleep(5)
+        time.sleep(3.5)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
       
@@ -123,7 +123,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourneDroite  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
-        time.sleep(3)
+        time.sleep(3.5)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
         
