@@ -1,12 +1,27 @@
+/// @file mqtt_esp32.cpp
+/// @brief Gestion des requêtes MQTT
+/// @author Nathanaël Amaridon 
+/// @date 2022-12-07
+/// @version 1.0.0
+/// @details
+
+#include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include <ESP8266WiFiMulti.h>
 #include "udp_esp_32.h"
 #include "mqtt_esp_32.h"
 
+// Variables globales
+MqttEsp32 mqttEsp32;
 WiFiClient espClient;
 PubSubClient client(espClient);
 extern UdpEsp32 udpEsp32;
+extern StaticJsonDocument<512> doc;
 
+/// @brief
+/// @param topic
+/// @param payload
+/// @param length
 void callback(char *topic, byte *payload, unsigned int length)
 {
   Serial.print("Message arrived in topic: ");
@@ -20,14 +35,18 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.println("-----------------------");
 }
 
+/// @brief Connexion au broker MQTT et vérification de la connexion toutes les 5 secondes
+/// @param
 void MqttEsp32::connectToMqtt(void)
 {
-  // connecting to a mqtt broker
-  client.setServer(mqtt_broker, mqtt_port);
-  client.setCallback(callback);
 
-  if ((millis() - timerMQTT > 10000UL) && !client.connected())
+  if ((millis() - timerMQTT > TIMER_MQTT) && !client.connected())
   {
+
+    // connecting to a mqtt broker
+    client.setServer(mqtt_broker.c_str(), mqtt_port);
+    client.setCallback(callback);
+
     String client_id = "esp8266-client" + udpEsp32.macAddress();
     Serial.printf("The client %s connects to the NAO mqtt broker\n", client_id.c_str());
     if (client.connect(client_id.c_str())) /*, mqtt_username, mqtt_password))*/
@@ -38,16 +57,39 @@ void MqttEsp32::connectToMqtt(void)
     {
       Serial.printf("failed with state %d\n", client.state());
     }
-    
+
     timerMQTT = millis();
   }
 }
 
+/// @brief Récupère le topic d'une requête MQTT
+/// @param pos position de la requête dans le buffer
+/// @return
+const char *MqttEsp32::getTopic(int pos)
+{
+  return m_dataMqtt[pos].m_topic.c_str();
+}
+
+/// @brief Récupère le topic d'une requête MQTT
+/// @param pos position de la requête dans le buffer
+/// @return
+const char *MqttEsp32::getPayload(int pos)
+{
+  return m_dataMqtt[pos].m_payload.c_str();
+}
+
+/// @brief
+/// @param
+/// @return
 bool MqttEsp32::loopMQTT(void)
 {
   return client.loop();
 }
 
+/// @brief Envoi d'un message MQTT
+/// @param topic
+/// @param payload
+/// @return
 bool MqttEsp32::publish(const char *topic, const char *payload)
 {
   if (client.connected())
@@ -62,6 +104,37 @@ bool MqttEsp32::publish(const char *topic, const char *payload)
   }
 }
 
+/// @brief Affecte une nouvelle du broker MQTT
+/// @param broker
+void MqttEsp32::setNewBroker(String broker)
+{
+  mqtt_broker = broker;
+  client.disconnect();
+}
+
+/// @brief Affecte le nombre de requête
+void MqttEsp32::setNbRequest(int nbRequest)
+{
+  if (nbRequest > MAX_REQUEST)
+    nbRequest = MAX_REQUEST;
+  m_nbRequest = nbRequest;
+}
+
+/// @brief Affecte la valeur du topic
+void MqttEsp32::setTopic(int pos, const char *topic)
+{
+  m_dataMqtt[pos].m_topic = topic;
+}
+
+/// @brief Affecte la valeur du payload
+void MqttEsp32::setPayload(int pos, const char *payload)
+{
+  m_dataMqtt[pos].m_payload = payload;
+}
+
+/// @brief S'abonne d'un topic MQTT
+/// @param topic
+/// @return
 bool MqttEsp32::subscribe(const char *topic)
 {
 
@@ -69,36 +142,11 @@ bool MqttEsp32::subscribe(const char *topic)
   return client.subscribe(topic);
 }
 
+/// @brief Se désabonne d'un topic MQTT
+/// @param topic
+/// @return
 bool MqttEsp32::unsubscribe(const char *topic)
 {
   Serial.printf("Unsubscribing to topic %s\n", topic);
   return client.unsubscribe(topic);
-}
-
-bool MqttEsp32::splitTrame(String trame)
-{
-
-  String m_buffer_request[MAX_REQUEST];
-
-  int index_buffer = 0;
-  int pos = 0;
-  // Décomposition de la trame
-
-  while (trame.indexOf('!') != -1)
-  {
-    m_buffer_request[index_buffer] = trame.substring(0, trame.indexOf('!'));
-    trame = trame.substring(trame.indexOf('!') + 1);
-    index_buffer++;
-  }
-
-  m_buffer_request[index_buffer] = trame;
-  m_numberAnimation = index_buffer + 1;
-  // décomposition de chaque requête
-  for (int i = 0; i < m_numberAnimation; i++)
-  {
-    pos = m_buffer_request[i].indexOf('#');
-    m_dataMqtt[i].m_topic = m_buffer_request[i].substring(0, pos);
-    m_dataMqtt[i].m_payload = m_buffer_request[i].substring(pos + 1);
-  }
-  return true;
 }

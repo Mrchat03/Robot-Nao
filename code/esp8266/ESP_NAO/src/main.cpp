@@ -1,12 +1,24 @@
+/// @file main.cpp
+/// @brief Programme principal de la carte ESP32. Ce programme permet de recevoir 
+///        des trames UDP et de les envoyer en MQTT.
+/// @author Nathanaël Amaridon 
+/// @date 2022-12-07
+/// @version 1.0.0
+/// @details
+
+
+#include <ArduinoJson.h>
+#include "json_esp_32.h"
 #include "wifi_esp_32.h"
 #include "udp_esp_32.h"
 #include "mqtt_esp_32.h"
 
-UdpEsp32 udpEsp32;
-MqttEsp32 mqttEsp32;
+// Variable externe globale
+extern UdpEsp32 udpEsp32;
+extern MqttEsp32 mqttEsp32;
+extern StaticJsonDocument<512> doc;
 
-String subscribeMQTT = "";
-
+/// @brief Initialisation de la carte ESP32
 void setup()
 {
   // Set software serial baud to 115200;
@@ -15,39 +27,41 @@ void setup()
   // LED
   pinMode(LED_BUILTIN, OUTPUT);
 
-  // connecting to a WiFi network
+  // connecte au wifi
   connectToWifi();
 
-  // Print ESP8266 Local IP Address
+  // Démarre le serveur UDP
   udpEsp32.beginUdp();
   digitalWrite(LED_BUILTIN, LOW); // turn the LED on (HIGH is the voltage level)
 }
 
+/// @brief 
 void loop()
 {
   mqttEsp32.loopMQTT();
 
+  // Lecture de la trame UDP
   if (udpEsp32.readTrame())
   {
-
-    if (mqttEsp32.splitTrame(udpEsp32.getTrame()))
+    // Lecture du JSON
+    if (readJson())
     {
-
-      for (int i = 0; i < mqttEsp32.getNumberAnimation(); i++)
+      if (mqttEsp32.getNbRequest() > 0)
       {
-
-        if (mqttEsp32.subscribe("zbos/motion/event"))
+        // On lit le nombre de requete
+        for (int i = 0; i < mqttEsp32.getNbRequest(); i++)
         {
-          Serial.printf("Topic: %s \nPayload: %s\n", mqttEsp32.getTopic(i), mqttEsp32.getPayload(i));
-          if (mqttEsp32.publish(mqttEsp32.getTopic(i), mqttEsp32.getPayload(i)))
-          {
-            //mqttEsp32.unsubscribe(subscribeMQTT.c_str());
-          }
+          // On envoie les requetes
+          mqttEsp32.publish(mqttEsp32.getTopic(i), mqttEsp32.getPayload(i));
         }
+        // On remet le nombre de requete à 0
+        mqttEsp32.setNbRequest(0);
       }
     }
   }
+  // On se connecte au broker MQTT
   mqttEsp32.connectToMqtt();
 
+ // On envoie un broadcast pour faire savoir qu'on est là
   udpEsp32.sendBroadcast();
 }

@@ -3,10 +3,14 @@
 #ifndef UDP_ESP_32_H
 #define UDP_ESP_32_H
 
+#include <ArduinoJson.h>
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
 #define BUFFER_SIZE 512
 
+const unsigned long TIMER_UDP = 5000UL;
+
+/// @brief Classe pour la communication UDP
 class UdpEsp32 : public WiFiUDP
 {
 
@@ -23,8 +27,9 @@ public:
     String getTrame(void) { return udpTrame; };
     String macAddress(void);
     IPAddress localIP(void);
-    String SSID(void);
     bool readTrame(void);
+    String SSID(void);
+
     void sendBroadcast(void);
 };
 
