@@ -129,11 +129,11 @@ class BeepBop(toga.App):
         
     #Tourne le robot 180 degrés
     def tourne180_action(self, widget):
-        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 50,"distance": 0,"relative_rotation": 180}}}"""
+        msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.6939980604270402,"degree":39.763159852734475},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("tourne180  //  ", msg)
         msg = """{"movement":{"topic":"zbos/motion/control/movement", "payload":{"yaw": 0,"pitch": 0,"angle": {"degree": 0},"force": 0,"distance": 0,"relative_rotation": 0}}}"""
-        time.sleep(5)
+        time.sleep(8)
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
         
