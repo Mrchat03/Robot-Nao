@@ -25,7 +25,6 @@ class BeepBop(toga.App):
         #-----------Création des boîtes--------------
         
         #Les sous-boîtes
-        
         btnPos_box = toga.Box(style=Pack(direction=ROW))
         btnTourne_box = toga.Box(style=Pack(direction=ROW))
         btnAnim_box = toga.Box(style=Pack(direction=ROW))
@@ -35,11 +34,10 @@ class BeepBop(toga.App):
         joystickCote_box = toga.Box(style=Pack(direction=ROW))
         joystickRecul_box = toga.Box(style=Pack(direction=ROW))
         
-        connexion_box = toga.Box(style=Pack(direction=ROW))
-        
         #Les boîtes principales
         btn_box = toga.Box(style=Pack(direction=COLUMN, padding_right=20, padding_left=50), children=[btnPos_box, btnTourne_box, btnAnim_box, btnMsg_box])
         joystick_box = toga.Box(style=Pack(direction=COLUMN), children=[joystickAvance_box, joystickCote_box, joystickRecul_box])
+        connexion_box = toga.Box(style=Pack(direction=ROW))
         main_box = toga.Box(style=Pack(direction=ROW, padding=5), children=[btn_box, joystick_box, connexion_box])
         
         
@@ -108,7 +106,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("assis  //  ", msg)
 
-    #Tourne le robot vers la gauche de 15 degrés
+    #Tourne le robot vers la gauche de 30 degrés
     def tourneGauche_action(self, widget):
         msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":2.2448158576504826,"degree":128.61847442741285},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
@@ -118,7 +116,7 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
       
-    #Tourne le robot vers la droite de 15 degrés  
+    #Tourne le robot vers la droite de 30 degrés  
     def tourneDroite_action(self, widget):
         msg = """{"movement":{"topic":"zbos/motion/control/movement","payload":{"angle":{"radian":0.6939980604270402,"degree":39.763159852734475},"force":100}}}"""
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
@@ -189,14 +187,15 @@ class BeepBop(toga.App):
         self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
         print("stop   //", msg)
     
-    #Le robot dit ce qui a été saisi dans le textbox
+    #Le robot dit ce qui a été saisi dans le textbox ou la ligne est transmis au ESP8266 pour configurer le IP ou le MQTT
     def parle_action(self, widget):
-        #Je vais faire un pas", "language": "fr-FR", "volume": 50}
-        if "mqtt set " in self.txt_message.value:
+        #Commande qui permet de changer l'adresse MQTT (l'adresse du robot)
+        if "mqtt set " in self.txt_message.value: 
             index = self.txt_message.value.find('set') + 4
             mqtt = self.txt_message.value[index:len(self.txt_message.value)]
             msg = """{"commande":{"mqtt":{"set":""" +'"' + mqtt + """"}}}"""
             self.UDPClientSocket.sendto(msg.encode('utf-8'), self.address)
+        #Commande qui permet de changer le réseau du robot
         elif "wifi set" in self.txt_message.value:
             index = self.txt_message.value.find('set') + 4
             ssidPwd = self.txt_message.value[index:len(self.txt_message.value)]
